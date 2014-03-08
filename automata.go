@@ -14,29 +14,19 @@ type PCell struct {
     generation int
 }
 
-func (self* PCell) birth(rules []State, N int) {
+func (self* PCell) birth(N int) {
     /*
-        Block on read of next_state
-        Write appropriate number of states to state channel
-            - 3 if inner node, 2 if edge node
-    */
+        N - Number of nodes
+     */
     for {
         // Block on read of next_state
-        //fmt.Printf("[PCell generation=%d idx=%d] Reading next state\n", self.generation, self.idx)
         next_state := <-self.next_state
-        //fmt.Printf("[PCell generation=%d idx=%d] Reading next state complete\n", self.generation, self.idx)
-
-        //fmt.Printf("[PCell generation=%d idx=%d] Saw %d as next_state\n", self.generation, self.idx, next_state)
 
         // Write appropriate number of states to state channel
         //  - 3 if inner node, 2 if edge node
         start, end, _ := calcStates(self.idx, N)
         for i := start; i < end + 1; i++ {
             self.state <- next_state
-        }
-
-        if self.generation == GENMAX {
-            return
         }
         self.generation += 1
     }
@@ -54,11 +44,6 @@ func (self* F1Cell) birth(state State, ps []PCell, rules []State, N int) {
         state - Initial State
         ps - array of PCells
         N - Number of nodes
-        Block on for clk
-        Output state
-        Write state to P1 cells
-        Read Pcells into new state
-
      */
     var state_lookup State
     for {
@@ -82,10 +67,6 @@ func (self* F1Cell) birth(state State, ps []PCell, rules []State, N int) {
             state_lookup = (state_lookup << 1)
         }
         state = rules[state_lookup]
-
-        if self.generation == GENMAX {
-            return
-        }
         self.generation += 1
     }
 }
@@ -121,13 +102,16 @@ func InitCells (N int) ([]F1Cell, []PCell) {
 }
 
 func consumeOut(f1cells []F1Cell) {
-    to_consume := len(f1cells)
+    to_consume := 0
     f1cell_states := make([]State, len(f1cells))
-    for i := range f1cells {
-        f1cells[i].clk <- "go!"
-    }
-
     for {
+        if to_consume <= 0 {
+            to_consume = len(f1cells)
+            for i := range f1cells {
+                f1cells[i].clk <- "go!"
+            }
+            printStateArray(f1cell_states)
+        }
         for i := range f1cells {
             select {
             case out := <-f1cells[i].out:
@@ -136,15 +120,9 @@ func consumeOut(f1cells []F1Cell) {
             default:
             }
         }
-        //fmt.Printf("Consumed %d/%d\n", to_consume, len(f1cells))
-        if to_consume <= 0 {
-            to_consume = len(f1cells)
-            //fmt.Printf("[Generation %d] ", f1cells[0].generation)
-            for i := range f1cells {
-                f1cells[i].clk <- "go!"
-                //fmt.Println(f1cells[i])
-            }
-            printStateArray(f1cell_states)
+
+        if f1cells[0].generation == GENMAX {
+            return
         }
     }
 }
@@ -184,7 +162,6 @@ func main () {
     /* Initialize soft state and run cells */
     fmt.Printf("Setting seed to: ")
     for i := range f1cells {
-        //fmt.Println(i)
         if seed % 2 == 1 {
             init_state = 1
         } else {
@@ -197,7 +174,7 @@ func main () {
     fmt.Printf("\n\n\n")
 
     for i := range pcells {
-        go pcells[i].birth(rules, N)
+        go pcells[i].birth(N)
     }
     consumeOut(f1cells)
 }
