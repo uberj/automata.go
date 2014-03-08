@@ -5,6 +5,10 @@ An overly convoluted implementation of 2D cellular automata using golang channel
 
 This is an exercise in using channels in Go.
 
+Things I'm still curious about:
+- Can I get rid of `clk`?
+- How do I ensure my go routines are running on more than one core? (I'm skeptical that they are doing so currently)
+
 General idea
 ------------
 ![Structures](https://raw.github.com/uberj/automata.go/master/diagram.jpg)
