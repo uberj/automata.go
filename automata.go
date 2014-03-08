@@ -1,9 +1,11 @@
 package main
 
-import "fmt"
+import (
+    "fmt"
+    "flag"
+)
 
 const MAXREADS = 3
-const GENMAX = 30
 
 type State int
 
@@ -101,7 +103,7 @@ func InitCells (N int) ([]F1Cell, []PCell) {
     return f1cells, pcells
 }
 
-func consumeOut(f1cells []F1Cell) {
+func consumeOut(f1cells []F1Cell, max_gen int) {
     to_consume := 0
     f1cell_states := make([]State, len(f1cells))
     for {
@@ -121,7 +123,7 @@ func consumeOut(f1cells []F1Cell) {
             }
         }
 
-        if f1cells[0].generation == GENMAX {
+        if f1cells[0].generation == max_gen {
             return
         }
     }
@@ -149,32 +151,47 @@ func InitStateRules(rule int) []State {
 }
 
 func main () {
+    /*
     N := 32
     rule := 30
-    var seed State = 1 << 16
+    seed := 1 << 16
+    */
+    //var N int
+    //var rule int
+    //var seed State
+
+    var N = flag.Int("N", 32, "Number of nodes")
+    var rule = flag.Int("rule", 30, "Rule to be used for calculating state: i.e. rule 90 http://en.wikipedia.org/wiki/Rule_90")
+    var seed = flag.Int("seed", 65536, "A seed value (powers of 2 are nice)")
+    var max_gen = flag.Int("gen", 30, "Number of generations to iterate")
+    flag.Parse()
+
     var init_state State
 
     /* Build structures */
-    rules := InitStateRules(rule)
+    rules := InitStateRules(*rule)
+    fmt.Println("Rule:", *rule)
+    fmt.Println("Seed (decimal):", *seed)
+    fmt.Println("Generations:", *max_gen)
     printStateArray(rules)
-    f1cells, pcells := InitCells(N)
+    f1cells, pcells := InitCells(*N)
 
     /* Initialize soft state and run cells */
-    fmt.Printf("Setting seed to: ")
+    fmt.Printf("Set seed to: ")
     for i := range f1cells {
-        if seed % 2 == 1 {
+        if *seed % 2 == 1 {
             init_state = 1
         } else {
             init_state = 0
         }
-        seed = seed >> 1
+        *seed = *seed >> 1
         fmt.Printf("%d ", init_state)
-        go f1cells[i].birth(init_state, pcells, rules, N)
+        go f1cells[i].birth(init_state, pcells, rules, *N)
     }
     fmt.Printf("\n\n\n")
 
     for i := range pcells {
-        go pcells[i].birth(N)
+        go pcells[i].birth(*N)
     }
-    consumeOut(f1cells)
+    consumeOut(f1cells, *max_gen)
 }
