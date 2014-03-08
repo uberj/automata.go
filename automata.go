@@ -14,7 +14,7 @@ type PCell struct {
     generation int
 }
 
-func (self* PCell) birth(rules []State, N int, stdout chan<- string) {
+func (self* PCell) birth(rules []State, N int) {
     /*
         Block on read of next_state
         Write appropriate number of states to state channel
@@ -49,8 +49,11 @@ type F1Cell struct {
     generation int
 }
 
-func (self* F1Cell) birth(state State, ps []PCell, rules []State, N int, stdout chan<- string) {
+func (self* F1Cell) birth(state State, ps []PCell, rules []State, N int) {
     /*
+        state - Initial State
+        ps - array of PCells
+        N - Number of nodes
         Block on for clk
         Output state
         Write state to P1 cells
@@ -58,7 +61,6 @@ func (self* F1Cell) birth(state State, ps []PCell, rules []State, N int, stdout 
 
      */
     var state_lookup State
-    //fmt.Printf("[F1Cell generation=%d idx=%d] %d is intial state\n", self.generation, self.idx, state)
     for {
         <-self.clk // Block here
 
@@ -111,34 +113,14 @@ func InitCells (N int) ([]F1Cell, []PCell) {
         pcells[i].idx = i
         pcells[i].next_state = make(chan State)
         num_reads := end - start + 1
-        fmt.Printf("Giving pcell #%d a %d read channel\n", i, num_reads)
         pcells[i].state = make(chan State, num_reads)
-
-        // Set initial state
-        /*
-        var init_state State
-        if seed % 2 == 1 {
-            init_state = 1
-        } else {
-            init_state = 0
-        }
-        seed = seed >> 1
-        fmt.Printf("%d ", init_state)
-
-        //pcells[i].next_state <- init_state
-        //f1cells[i].out <- init_state
-
-        for j := 0; j < end - start; j ++ {
-            pcells[i].state <- init_state
-        }
-        */
 
     }
     fmt.Printf("\n")
     return f1cells, pcells
 }
 
-func consumeOut(f1cells []F1Cell, stdout <-chan string) {
+func consumeOut(f1cells []F1Cell) {
     to_consume := len(f1cells)
     f1cell_states := make([]State, len(f1cells))
     for i := range f1cells {
@@ -189,10 +171,9 @@ func InitStateRules(rule int) []State {
 }
 
 func main () {
-    stdout := make(chan string)
     N := 32
-    rule := 84
-    var seed State = 1111111
+    rule := 30
+    var seed State = 1 << 16
     var init_state State
 
     /* Build structures */
@@ -211,12 +192,12 @@ func main () {
         }
         seed = seed >> 1
         fmt.Printf("%d ", init_state)
-        go f1cells[i].birth(init_state, pcells, rules, N, stdout)
+        go f1cells[i].birth(init_state, pcells, rules, N)
     }
     fmt.Printf("\n\n\n")
 
     for i := range pcells {
-        go pcells[i].birth(rules, N, stdout)
+        go pcells[i].birth(rules, N)
     }
-    consumeOut(f1cells, stdout)
+    consumeOut(f1cells)
 }
