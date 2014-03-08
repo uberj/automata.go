@@ -7,19 +7,20 @@ This is an exercise in using channels in Go.
 
 General idea
 ------------
-![Structures](http://github.com/uberj/automata/diagram.jpg)
+![Structures](https://raw.github.com/uberj/automata.go/master/diagram.jpg)
+(Click to see image rotated by pi)
 
 F1Cell behavior:
-    - Block reading from clk
-    - Write state to out (blocking?)
-    - Write to next\_state (blocking)
-    - Read from appropriate p cells to calculate new state
-    - loop
+- Block reading from clk
+- Write state to out (blocking?)
+- Write to next\_state (blocking)
+- Read from appropriate p cells to calculate new state
+- loop
 
 PCell behavior:
-    - Read next state (blocking)
-    - Write correct number of reads to state channel
-    - loop
+- Read next state (blocking)
+- Write correct number of reads to state channel
+- loop
 
 
 
