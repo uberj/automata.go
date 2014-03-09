@@ -106,9 +106,11 @@ func InitCells (N int) ([]F1Cell, []PCell) {
 
 func consumeOut(f1cells []F1Cell, max_gen int) {
     to_consume := 0
+    generation := 0
     f1cell_states := make([]State, len(f1cells))
     for {
         if to_consume <= 0 {
+            generation += 1
             to_consume = len(f1cells)
             for i := range f1cells {
                 f1cells[i].clk <- "go!"
@@ -124,7 +126,7 @@ func consumeOut(f1cells []F1Cell, max_gen int) {
             }
         }
 
-        if f1cells[0].generation == max_gen {
+        if generation == max_gen {
             return
         }
     }
