@@ -168,7 +168,7 @@ func main () {
     var seed = flag.Int("seed", 65536, "A seed value (powers of 2 are nice)")
     var max_gen = flag.Int("gen", 30, "Number of generations to iterate")
     var ncpu = flag.Int(
-        "ncpu", runtime.NumCPU(), "GOMAXPROCS knob. Defaults to runtime.NumCPU() (the number of cores exposed to your kernel)")
+        "ncpu", runtime.NumCPU(), "GOMAXPROCS knob. Defaults to runtime.NumCPU() (the number of cores exposed to your user)")
     flag.Parse()
 
     var init_state State

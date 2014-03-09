@@ -34,6 +34,7 @@ Examples
 $ go run automata.go -help
   -N=32: Number of nodes
   -gen=30: Number of generations to iterate
+  -ncpu=4: GOMAXPROCS knob. Defaults to runtime.NumCPU() (the number of cores exposed to your user)
   -rule=30: Rule to be used for calculating state: i.e. rule 90 http://en.wikipedia.org/wiki/Rule_90
   -seed=65536: A seed value (powers of 2 are nice)
 ```
