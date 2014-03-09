@@ -115,7 +115,7 @@ func consumeOut(f1cells []F1Cell, max_gen int) {
             for i := range f1cells {
                 f1cells[i].clk <- "go!"
             }
-            printStateArray(f1cell_states)
+            fmt.Println(f1cell_states)
         }
         for i := range f1cells {
             select {
@@ -132,10 +132,10 @@ func consumeOut(f1cells []F1Cell, max_gen int) {
     }
 }
 
-func printStateArray(sa []State) {
+func String(sa* []State) {
     fmt.Printf("State array: ")
-    for i := range sa {
-        fmt.Printf("%d ", sa[i])
+    for i := range *sa {
+        fmt.Printf("%d ", (*sa)[i])
     }
     fmt.Printf("\n")
 }
@@ -181,7 +181,7 @@ func main () {
     fmt.Println("Rule:", *rule)
     fmt.Println("Seed (decimal):", *seed)
     fmt.Println("Generations:", *max_gen)
-    printStateArray(rules)
+    fmt.Println(rules)
     f1cells, pcells := InitCells(*N)
 
     /* Initialize soft state and run cells */
