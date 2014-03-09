@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "flag"
+    "runtime"
 )
 
 const MAXREADS = 3
@@ -164,9 +165,14 @@ func main () {
     var rule = flag.Int("rule", 30, "Rule to be used for calculating state: i.e. rule 90 http://en.wikipedia.org/wiki/Rule_90")
     var seed = flag.Int("seed", 65536, "A seed value (powers of 2 are nice)")
     var max_gen = flag.Int("gen", 30, "Number of generations to iterate")
+    var ncpu = flag.Int(
+        "ncpu", runtime.NumCPU(), "GOMAXPROCS knob. Defaults to runtime.NumCPU() (the number of cores exposed to your native kernel")
     flag.Parse()
 
     var init_state State
+
+    /* Set number of CPUs */
+    runtime.GOMAXPROCS(*ncpu)
 
     /* Build structures */
     rules := InitStateRules(*rule)
