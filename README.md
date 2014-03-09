@@ -8,7 +8,8 @@ This is an exercise in using channels in Go.
 Things I'm still curious about:
 - Can I get rid of `clk`?
 - How do I ensure my go routines are running on more than one core? (I'm skeptical that they are doing so currently)
-    - My answer was answered by GOMAXPROCS and implemented in [9d0efedc][0]
+    - My question was answered by GOMAXPROCS and implemented in [9d0efedc][0]
+    - ...aaand its in the [FAQ][1]
 
 General idea
 ------------
@@ -128,3 +129,4 @@ State array: 0 0 1 1 0 0 0 1 1 1 1 1 1 1 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ```
 
 [0]:https://github.com/uberj/automata.go/commit/9d0efedc3f97630b0839afa6b13fe8242834b835
+[1]:http://golang.org/doc/faq#Why_no_multi_CPU
